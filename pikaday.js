@@ -1152,7 +1152,7 @@
 
         activate: function()
         {
-          this.+activate();
+          this._activate();
         },
 
         show: function()
