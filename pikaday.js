@@ -176,6 +176,8 @@
      * defaults and localisation
      */
     defaults = {
+        // force status Pikaday calendar to displayable or not.
+        active: true,
 
         // bind the picker to a form field
         field: null,
@@ -527,14 +529,30 @@
             }
         };
 
+        self._deactivate = function()
+        {
+          opts.active = false;
+        };
+
+        self._activate = function()
+        {
+          opts.active = true;
+        };
+
         self._onInputFocus = function()
         {
+          //Check displayable status
+          if (opts.active) {
             self.show();
+          }
         };
 
         self._onInputClick = function()
         {
+          //Check displayable status
+          if (opts.active) {
             self.show();
+          }
         };
 
         self._onInputBlur = function()
@@ -1125,6 +1143,16 @@
         isVisible: function()
         {
             return this._v;
+        },
+
+        deactivate: function()
+        {
+          this._deactivate();
+        },
+
+        activate: function()
+        {
+          this.+activate();
         },
 
         show: function()
