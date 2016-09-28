@@ -1,14 +1,14 @@
 {
-  "name": "pikaday",
-  "version": "1.4.0",
+  "name": "pikaday-extend",
+  "version": "1.4.1",
   "description": "A refreshing JavaScript Datepicker — lightweight, no dependencies, modular CSS",
   "keywords": [
     "datepicker",
     "calendar",
     "date"
   ],
-  "homepage": "http://dbushell.github.io/Pikaday/",
-  "bugs": "https://github.com/dbushell/Pikaday/issues",
+  "homepage": "https://github.com/saragi/Pikaday",
+  "bugs": "https://github.com/saragi/Pikaday/issues",
   "licenses": [
     {
       "type": "BSD",
@@ -22,7 +22,7 @@
   "main": "pikaday.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/dbushell/Pikaday.git"
+    "url": "https://github.com/saragi/Pikaday.git"
   },
   "optionalDependencies": {
     "moment": "2.x"
