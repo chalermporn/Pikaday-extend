@@ -229,6 +229,8 @@
 
         isRTL: false,
 
+        yearGap: 0,
+
         // Additional text to append to the year in the calendar title
         yearSuffix: '',
 
@@ -248,13 +250,23 @@
         // Specify a DOM element to render the calendar in
         container: undefined,
 
+        currentLocale: 'en',
         // internationalization
         i18n: {
-            previousMonth : 'Previous Month',
-            nextMonth     : 'Next Month',
-            months        : ['January','February','March','April','May','June','July','August','September','October','November','December'],
-            weekdays      : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-            weekdaysShort : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+          en : {
+              previousMonth : 'Previous Month',
+              nextMonth     : 'Next Month',
+              months        : ['January','February','March','April','May','June','July','August','September','October','November','December'],
+              weekdays      : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+              weekdaysShort : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+          },
+          th : {
+              previousMonth : 'เดือนที่แล้ว',
+              nextMonth     : 'เดือนหน้า',
+              months        : ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'],
+              weekdays      : ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'],
+              weekdaysShort : ['อา','จ','อ','พ','พฤ','ศ','ส']
+          },
         },
 
         // Theme Classname
@@ -277,7 +289,7 @@
         while (day >= 7) {
             day -= 7;
         }
-        return abbr ? opts.i18n.weekdaysShort[day] : opts.i18n.weekdays[day];
+        return abbr ? opts.i18n[opts.currentLocale].weekdaysShort[day] : opts.i18n[opts.currentLocale].weekdays[day];
     },
 
     renderDay = function(opts)
@@ -363,10 +375,10 @@
             arr.push('<option value="' + (year === refYear ? i - c : 12 + i - c) + '"' +
                 (i === month ? ' selected="selected"': '') +
                 ((isMinYear && i < opts.minMonth) || (isMaxYear && i > opts.maxMonth) ? 'disabled="disabled"' : '') + '>' +
-                opts.i18n.months[i] + '</option>');
+                opts.i18n[opts.currentLocale].months[i] + '</option>');
         }
 
-        monthHtml = '<div class="pika-label">' + opts.i18n.months[month] + '<select class="pika-select pika-select-month" tabindex="-1">' + arr.join('') + '</select></div>';
+        monthHtml = '<div class="pika-label">' + opts.i18n[opts.currentLocale].months[month] + '<select class="pika-select pika-select-month" tabindex="-1">' + arr.join('') + '</select></div>';
 
         if (isArray(opts.yearRange)) {
             i = opts.yearRange[0];
@@ -378,10 +390,10 @@
 
         for (arr = []; i < j && i <= opts.maxYear; i++) {
             if (i >= opts.minYear) {
-                arr.push('<option value="' + i + '"' + (i === year ? ' selected="selected"': '') + '>' + (i) + '</option>');
+                arr.push('<option value="' + i + '"' + (i === year ? ' selected="selected"': '') + '>' + (i + opts.yearGap) + '</option>');
             }
         }
-        yearHtml = '<div class="pika-label">' + year + opts.yearSuffix + '<select class="pika-select pika-select-year" tabindex="-1">' + arr.join('') + '</select></div>';
+        yearHtml = '<div class="pika-label">' + (year + opts.yearGap) + opts.yearSuffix + '<select class="pika-select pika-select-year" tabindex="-1">' + arr.join('') + '</select></div>';
 
         if (opts.showMonthAfterYear) {
             html += yearHtml + monthHtml;
@@ -398,10 +410,10 @@
         }
 
         if (c === 0) {
-            html += '<button class="pika-prev' + (prev ? '' : ' is-disabled') + '" type="button">' + opts.i18n.previousMonth + '</button>';
+            html += '<button class="pika-prev' + (prev ? '' : ' is-disabled') + '" type="button">' + opts.i18n[opts.currentLocale].previousMonth + '</button>';
         }
         if (c === (instance._o.numberOfMonths - 1) ) {
-            html += '<button class="pika-next' + (next ? '' : ' is-disabled') + '" type="button">' + opts.i18n.nextMonth + '</button>';
+            html += '<button class="pika-next' + (next ? '' : ' is-disabled') + '" type="button">' + opts.i18n[opts.currentLocale].nextMonth + '</button>';
         }
 
         return html += '</div>';
@@ -1153,6 +1165,18 @@
         activate: function()
         {
           this._activate();
+        },
+
+        setYearGap: function(yearGap)
+        {
+          yearGap = yearGap || 0;
+          this._o.yearGap = yearGap;
+        },
+
+        changeLocale: function(locale)
+        {
+          locale = locale || 'en';
+          this._o.currentLocale = locale;
         },
 
         show: function()
