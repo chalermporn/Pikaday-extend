@@ -1187,6 +1187,7 @@
                 this.draw();
                 if (this._o.bound) {
                     addEvent(document, 'click', this._onClick);
+                    addEvent(document, 'touchend', this._onClick);
                     this.adjustPosition();
                 }
                 if (typeof this._o.onOpen === 'function') {
@@ -1201,6 +1202,7 @@
             if (v !== false) {
                 if (this._o.bound) {
                     removeEvent(document, 'click', this._onClick);
+                    removeEvent(document, 'touchend', this._onClick);
                 }
                 this.el.style.position = 'static'; // reset
                 this.el.style.left = 'auto';
