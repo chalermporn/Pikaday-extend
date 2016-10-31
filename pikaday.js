@@ -176,6 +176,7 @@
      * defaults and localisation
      */
     defaults = {
+
         // force status Pikaday calendar to displayable or not.
         active: true,
 
@@ -250,6 +251,8 @@
         // Specify a DOM element to render the calendar in
         container: undefined,
 
+        responsive: false,
+
         currentLocale: 'en',
         // internationalization
         i18n: {
@@ -258,14 +261,18 @@
               nextMonth     : 'Next Month',
               months        : ['January','February','March','April','May','June','July','August','September','October','November','December'],
               weekdays      : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-              weekdaysShort : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+              weekdaysShort : ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+              cancel        : 'Cancel',
+              ok            : 'OK',
           },
           th : {
               previousMonth : 'เดือนที่แล้ว',
               nextMonth     : 'เดือนหน้า',
               months        : ['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'],
               weekdays      : ['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'],
-              weekdaysShort : ['อา','จ','อ','พ','พฤ','ศ','ส']
+              weekdaysShort : ['อา','จ','อ','พ','พฤ','ศ','ส'],
+              cancel        : 'ยกเลิก',
+              ok            : 'ตกลง'
           },
         },
 
@@ -439,17 +446,29 @@
                 return;
             }
             e = e || window.event;
-            var target = e.target || e.srcElement;
+            var target = e.target || e.srcElement,
+                pikaEl = this;
+
             if (!target) {
                 return;
             }
 
             if (!hasClass(target, 'is-disabled')) {
+
                 if (hasClass(target, 'pika-button') && !hasClass(target, 'is-empty') && !hasClass(target.parentNode, 'is-disabled')) {
-                    self.setDate(new Date(target.getAttribute('data-pika-year'), target.getAttribute('data-pika-month'), target.getAttribute('data-pika-day')));
-                    if (opts.bound) {
+                  var isButtonOk = hasClass(target, 'pika-button-ok'),
+                      isButtonCancel = hasClass(target, 'pika-button-cancel');
+                    if (!opts.responsive) {
+                      self.setDate(new Date(target.getAttribute('data-pika-year'), target.getAttribute('data-pika-month'), target.getAttribute('data-pika-day')));
+                    } else if (!isButtonOk && !isButtonCancel) {
+                      self.setDate(new Date(target.getAttribute('data-pika-year'), target.getAttribute('data-pika-month'), target.getAttribute('data-pika-day')), true);
+                    } else if (isButtonOk) {
+                      self.setDate(self.getDate());
+                    }
+
+                    if (opts.bound || isButtonOk || isButtonCancel) {
                         sto(function() {
-                            self.hide();
+                            self.hide(opts.responsive && !isButtonOk && !isButtonCancel);
                             if (opts.field) {
                                 opts.field.blur();
                             }
@@ -606,7 +625,7 @@
                 }
             }
             while ((pEl = pEl.parentNode));
-            if (self._v && target !== opts.trigger && pEl !== opts.trigger) {
+            if (!opts.responsive && self._v && target !== opts.trigger && pEl !== opts.trigger) {
                 self.hide();
             }
         };
@@ -656,7 +675,9 @@
             self.el.className += ' is-bound';
             addEvent(opts.trigger, 'click', self._onInputClick);
             addEvent(opts.trigger, 'focus', self._onInputFocus);
-            addEvent(opts.trigger, 'blur', self._onInputBlur);
+            if (!opts.responsive) {
+              addEvent(opts.trigger, 'blur', self._onInputBlur);
+            }
         } else {
             this.show();
         }
@@ -977,7 +998,8 @@
                 minMonth = opts.minMonth,
                 maxMonth = opts.maxMonth,
                 html = '',
-                randId;
+                randId,
+                randIdFooter;
 
             if (this._y <= minYear) {
                 this._y = minYear;
@@ -994,8 +1016,13 @@
 
             randId = 'pika-title-' + Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 2);
 
+            randIdFooter = 'pika-footer-' + Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 2);
+
             for (var c = 0; c < opts.numberOfMonths; c++) {
-                html += '<div class="pika-lendar">' + renderTitle(this, c, this.calendars[c].year, this.calendars[c].month, this.calendars[0].year, randId) + this.render(this.calendars[c].year, this.calendars[c].month, randId) + '</div>';
+                html += '<div class="pika-lendar">'
+                  + renderTitle(this, c, this.calendars[c].year, this.calendars[c].month, this.calendars[0].year, randId)
+                  + this.render(this.calendars[c].year, this.calendars[c].month, randId)
+                  + this.renderFooter(this, randIdFooter) + '</div>';
             }
 
             this.el.innerHTML = html;
@@ -1152,6 +1179,15 @@
             return renderTable(opts, data, randId);
         },
 
+        renderFooter: function(instance, randId)
+        {
+            var opts = this._o,
+                i18n = opts.i18n[ opts.currentLocale ],
+                isDisabled = this._d ? '': 'is-disabled';
+
+            return !this._o.responsive ? '': '<div class="pika-button-container"><span class="pika-button pika-button-cancel">' + i18n.cancel + '</span><span class="pika-button pika-button-ok ' + isDisabled + '">' + i18n.ok + '</span></div>';
+        },
+
         isVisible: function()
         {
             return this._v;
@@ -1196,22 +1232,53 @@
             }
         },
 
-        hide: function()
+        hide: function(preventHide)
         {
-            var v = this._v;
-            if (v !== false) {
-                if (this._o.bound) {
+            var v = this._v,
+                that = this;
+
+            preventHide = preventHide || false;
+            if (preventHide) {
+              return;
+            }
+
+            if (this._o.responsive) {
+              if (v !== undefined && typeof this._o.onClose === 'function') {
+                  this._o.onClose.call(this);
+              }
+              sto(function() {
+
+                if (that._o.bound) {
                     removeEvent(document, 'click', this._onClick);
                     removeEvent(document, 'touchend', this._onClick);
                 }
-                this.el.style.position = 'static'; // reset
-                this.el.style.left = 'auto';
-                this.el.style.top = 'auto';
-                addClass(this.el, 'is-hidden');
-                this._v = false;
-                if (v !== undefined && typeof this._o.onClose === 'function') {
-                    this._o.onClose.call(this);
-                }
+                // removeEvent(that._o.trigger, 'click', that._onInputClick);
+                // removeEvent(that._o.trigger, 'focus', that._onInputFocus);
+                // removeEvent(that._o.trigger, 'blur', that._onInputBlur);
+
+
+                that.el.style.position = 'static'; // reset
+                that.el.style.left = 'auto';
+                that.el.style.top = 'auto';
+                addClass(that.el, 'is-hidden');
+                that._v = false;
+              }, this._o.animateTime);
+            } else {
+
+              if (v !== false) {
+                  if (this._o.bound) {
+                      removeEvent(document, 'click', this._onClick);
+                      removeEvent(document, 'touchend', this._onClick);
+                  }
+                  this.el.style.position = 'static'; // reset
+                  this.el.style.left = 'auto';
+                  this.el.style.top = 'auto';
+                  addClass(this.el, 'is-hidden');
+                  this._v = false;
+                  if (v !== undefined && typeof this._o.onClose === 'function') {
+                      this._o.onClose.call(this);
+                  }
+              }
             }
         },
 
