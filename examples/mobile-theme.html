@@ -41,18 +41,22 @@
 
     var picker = new Pikaday(
     {
+        container: document.getElementById('container'),
         field: document.getElementById('hidden'),
         trigger: document.getElementById('datepicker'),
         theme: 'mobile-theme',
         responsive: true,
         currentLocale: 'th',
-        // bound: false,
         firstDay: 1,
         animateTime: 600,
         minDate: new Date(2000, 0, 1),
         maxDate: new Date(2020, 12, 31),
         yearRange: [2000, 2020],
-        container: document.getElementById('container'),
+        onAfterClose: function() {
+          if (this.isDirty) {
+            this.setDate(this.defaultDate, true);
+          }
+        },
         onOpen: function() {
           document.getElementById('container').classList.add('slideInUp', 'animated', 'active');
           setTimeout(function() {

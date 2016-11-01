@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+    <title>Pikaday - Container example</title>
+    <meta name="author" content="Stuart McFarlane">
+    <link rel="stylesheet" href="../css/pikaday.css">
+    <link rel="stylesheet" href="../css/site.css">
+    <link rel="stylesheet" href="../css/mobile-theme.css">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css"> -->
+</head>
+<body>
+    <a href="https://github.com/dbushell/Pikaday"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+
+    <h1>Pikaday - Container example</h1>
+
+    <p class="large">A refreshing JavaScript Datepicker — lightweight, no dependencies, modular CSS.</p>
+
+    <div>
+        <div class="flow-element">
+            <label>Start</label>
+            <button id="datepicker-start">Calendar!!</button>
+            <input type="hidden" id="hidden-start">
+        </div>
+
+        <div class="flow-element">
+            <label>End</label>
+            <button id="datepicker-end">Calendar!!</button>
+            <input type="hidden" id="hidden-end">
+        </div>
+        <div class="flow-element">
+            <div id="container"></div>
+        </div>
+    </div>
+
+    <h2>What is this?</h2>
+
+    <p>Since version 1.0 Pikaday is a stable and battle tested date-picker. Feel free to use it however you like but please report any bugs or feature requests to the <a href="https://github.com/dbushell/Pikaday/issues">GitHub issue tracker</a>, thanks!</p>
+
+    <p class="small">Copyright © 2014 <a href="http://dbushell.com/">David Bushell</a> | BSD &amp; MIT license | Example by <a href="https://github.com/rikkert">Ramiro Rikkert</a></p>
+
+
+    <!-- First load pikaday.js and then the jQuery plugin -->
+    <script src="../pikaday.js"></script>
+    <script>
+    var startDate,
+        endDate,
+        animateTime = 600,
+        updateStartDate = function() {
+            startPicker.setStartRange(startDate);
+            endPicker.setStartRange(startDate);
+            endPicker.setMinDate(startDate);
+        },
+        updateEndDate = function() {
+            startPicker.setEndRange(endDate);
+            startPicker.setMaxDate(endDate);
+            endPicker.setEndRange(endDate);
+        },
+        startPicker = new Pikaday({
+            container: document.getElementById('container'),
+            field: document.getElementById('hidden-start'),
+            trigger: document.getElementById('datepicker-start'),
+            theme: 'mobile-theme',
+            responsive: true,
+            showDaysInNextAndPreviousMonths: true,
+            currentLocale: 'th',
+            firstDay: 1,
+            animateTime: animateTime,
+            minDate: new Date(2000, 0, 1),
+            maxDate: new Date(2020, 12, 31),
+            yearRange: [2000, 2020],
+
+            onBeforeSelect: function(date) {
+              this.setStartRange(date);
+            },
+
+            onAfterClose: function() {
+              if (this.isDirty) {
+                var self = this;
+                setTimeout(function() {
+                  self.setDate(self.defaultDate, true);
+                  self.setStartRange(self.defaultDate);
+                }, animateTime);
+              }
+            },
+
+            onOpen: function() {
+              document.getElementById('container').classList.add('slideInUp', 'animated', 'active');
+              setTimeout(function() {
+                document.getElementById('container').classList.remove('slideInUp', 'animated');
+              }, animateTime)
+            },
+
+            onClose: function() {
+              document.getElementById('container').classList.add('slideOutDown','animated');
+              setTimeout(function() {
+                document.getElementById('container').classList.remove('slideOutDown','animated','active')
+              }, animateTime);
+            },
+
+            onSelect: function() {
+              startDate = this.getDate();
+              console.log('start date = ', startDate)
+              updateStartDate();
+            }
+        }),
+        endPicker = new Pikaday({
+            container: document.getElementById('container'),
+            field: document.getElementById('hidden-end'),
+            trigger: document.getElementById('datepicker-end'),
+            theme: 'mobile-theme',
+            responsive: true,
+            showDaysInNextAndPreviousMonths: true,
+            currentLocale: 'th',
+            firstDay: 1,
+            animateTime: animateTime,
+            minDate: new Date(2000, 0, 1),
+            maxDate: new Date(2020, 12, 31),
+            yearRange: [2000, 2020],
+
+            onBeforeSelect: function(date) {
+              this.setEndRange(date);
+            },
+
+            onAfterClose: function() {
+              if (this.isDirty) {
+                var self = this;
+                setTimeout(function() {
+                  self.setDate(self.defaultDate, true);
+                  self.setEndRange(self.defaultDate);
+                }, animateTime);
+              }
+            },
+
+            onOpen: function() {
+              document.getElementById('container').classList.add('slideInUp', 'animated', 'active');
+              setTimeout(function() {
+                document.getElementById('container').classList.remove('slideInUp', 'animated');
+              }, animateTime)
+            },
+
+            onClose: function() {
+              if (this.defaultDate.getTime() !== this.getDate().getTime()) {
+                this.isDirty = true;
+              }
+              document.getElementById('container').classList.add('slideOutDown','animated');
+              setTimeout(function() {
+                document.getElementById('container').classList.remove('slideOutDown','animated','active')
+              }, animateTime);
+            },
+
+            onSelect: function() {
+              this.isDirty = false;
+              endDate = this.getDate();
+              updateEndDate();
+            }
+        });
+
+    startPicker.setDate('2016-11-02');
+    endPicker.setDate('2016-11-05');
+    var _startDate = startPicker.getDate(),
+        _endDate =  endPicker.getDate();
+
+
+
+    if (_startDate) {
+        startDate = _startDate;
+        updateStartDate();
+    }
+
+    if (_endDate) {
+        endDate = _endDate;
+        updateEndDate();
+    }
+    </script>
+</body>
+</html>

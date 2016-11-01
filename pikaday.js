@@ -176,6 +176,7 @@
      * defaults and localisation
      */
     defaults = {
+        animateTime: 0,
 
         // force status Pikaday calendar to displayable or not.
         active: true,
@@ -439,6 +440,12 @@
     {
         var self = this,
             opts = self.config(options);
+
+        //For responsive mode. dirty checker.
+        self.isDirty = false;
+
+        //For responsive mode. Restore point when use cancel btn
+        self.defaultDate = null;
 
         self._onMouseDown = function(e)
         {
@@ -814,6 +821,10 @@
             }
 
             this._d = new Date(date.getTime());
+            if (typeof this._o.onBeforeSelect === 'function') {
+              this._o.onBeforeSelect.call(this, this._d);
+            }
+
             setToStartOfDay(this._d);
             this.gotoDate(this._d);
 
@@ -822,6 +833,7 @@
                 fireEvent(this._o.field, 'change', { firedBy: this });
             }
             if (!preventOnSelect && typeof this._o.onSelect === 'function') {
+                this.defaultDate = this.getDate();
                 this._o.onSelect.call(this, this.getDate());
             }
         },
@@ -1226,6 +1238,10 @@
                     addEvent(document, 'touchend', this._onClick);
                     this.adjustPosition();
                 }
+
+                this.defaultDate = this._d;
+                this.isDirty = false;
+
                 if (typeof this._o.onOpen === 'function') {
                     this._o.onOpen.call(this);
                 }
@@ -1235,51 +1251,37 @@
         hide: function(preventHide)
         {
             var v = this._v,
-                that = this;
+                self = this;
 
             preventHide = preventHide || false;
-            if (preventHide) {
+            if (preventHide || v === false) {
               return;
             }
 
-            if (this._o.responsive) {
-              if (v !== undefined && typeof this._o.onClose === 'function') {
-                  this._o.onClose.call(this);
-              }
-              sto(function() {
-
-                if (that._o.bound) {
-                    removeEvent(document, 'click', this._onClick);
-                    removeEvent(document, 'touchend', this._onClick);
-                }
-                // removeEvent(that._o.trigger, 'click', that._onInputClick);
-                // removeEvent(that._o.trigger, 'focus', that._onInputFocus);
-                // removeEvent(that._o.trigger, 'blur', that._onInputBlur);
-
-
-                that.el.style.position = 'static'; // reset
-                that.el.style.left = 'auto';
-                that.el.style.top = 'auto';
-                addClass(that.el, 'is-hidden');
-                that._v = false;
-              }, this._o.animateTime);
-            } else {
-
-              if (v !== false) {
-                  if (this._o.bound) {
-                      removeEvent(document, 'click', this._onClick);
-                      removeEvent(document, 'touchend', this._onClick);
-                  }
-                  this.el.style.position = 'static'; // reset
-                  this.el.style.left = 'auto';
-                  this.el.style.top = 'auto';
-                  addClass(this.el, 'is-hidden');
-                  this._v = false;
-                  if (v !== undefined && typeof this._o.onClose === 'function') {
-                      this._o.onClose.call(this);
-                  }
-              }
+            if (!self.defaultDate || (self.defaultDate.getTime() !== self._d.getTime())) {
+              self.isDirty = true;
             }
+
+            if (v !== undefined && typeof this._o.onClose === 'function') {
+                this._o.onClose.call(this);
+            }
+
+            if (typeof this._o.onAfterClose === 'function') {
+                this._o.onAfterClose.call(this);
+            }
+
+            sto(function() {
+              if (self._o.bound) {
+                  removeEvent(document, 'click', this._onClick);
+                  removeEvent(document, 'touchend', this._onClick);
+              }
+
+              self.el.style.position = 'static'; // reset
+              self.el.style.left = 'auto';
+              self.el.style.top = 'auto';
+              addClass(self.el, 'is-hidden');
+              self._v = false;
+            }, this._o.animateTime);
         },
 
         /**
