@@ -821,7 +821,8 @@
             }
 
             this._d = new Date(date.getTime());
-            if (typeof this._o.onBeforeSelect === 'function') {
+
+            if (this._v && typeof this._o.onBeforeSelect === 'function') {
               this._o.onBeforeSelect.call(this, this._d);
             }
 

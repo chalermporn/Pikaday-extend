@@ -2,7 +2,7 @@
   "name": "pikaday",
   "repo": "saragi/Pikaday-extend",
   "description": "A refreshing JavaScript Datepicker — lightweight, no dependencies, modular CSS",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "keywords": [
     "datepicker",
     "calendar",
