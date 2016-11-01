@@ -1,8 +1,8 @@
 {
   "name": "pikaday",
-  "repo": "dbushell/Pikaday",
+  "repo": "saragi/Pikaday-extend",
   "description": "A refreshing JavaScript Datepicker — lightweight, no dependencies, modular CSS",
-  "version": "1.6.1",
+  "version": "1.6.2",
   "keywords": [
     "datepicker",
     "calendar",
@@ -12,6 +12,6 @@
   "scripts": ["pikaday.js"],
   "styles":  ["css/pikaday.css"],
   "dependencies": {},
-  "demo": "http://dbushell.github.io/Pikaday/",
+  "demo": "http://saragi.github.io/Pikaday-extend/",
   "license": "MIT"
 }

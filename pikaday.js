@@ -1050,7 +1050,7 @@
             if (typeof this._o.onDraw === 'function') {
                 this._o.onDraw(this);
             }
-            
+
             if (opts.bound) {
                 // let the screen reader user know to use arrow keys
                 opts.field.setAttribute('aria-label', 'Use the arrow keys to pick a date');
@@ -1261,16 +1261,18 @@
               return;
             }
 
-            if (!self.defaultDate || (self.defaultDate.getTime() !== self._d.getTime())) {
-              self.isDirty = true;
-            }
+            if (v !== undefined) {
+              if (!self.defaultDate || (self.defaultDate.getTime() !== self._d.getTime())) {
+                self.isDirty = true;
+              }
 
-            if (v !== undefined && typeof this._o.onClose === 'function') {
+              if (typeof this._o.onClose === 'function') {
                 this._o.onClose.call(this);
-            }
+              }
 
-            if (typeof this._o.onAfterClose === 'function') {
+              if (typeof this._o.onAfterClose === 'function') {
                 this._o.onAfterClose.call(this);
+              }
             }
 
             sto(function() {
